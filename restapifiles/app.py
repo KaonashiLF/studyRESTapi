@@ -17,5 +17,3 @@ api.add_resource(Hotel, '/hoteis/<string:hotel_id>')
 # This code for run my app variable with debug function
 if __name__ == '__main__':
     app.run(debug=True)
-    
-    

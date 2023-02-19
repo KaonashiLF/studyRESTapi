@@ -1,6 +1,9 @@
 # Este arquivo terá todos os recursos que são relacionados com hoteis
 
 from flask_restful import Resource, reqparse
+from models.hotel import HotelModel
+
+
 
 
 hoteis = [
@@ -42,6 +45,7 @@ hoteis = [
     } 
 ]
 
+
 class Hoteis (Resource):
     '''
     This is a class of hotels
@@ -53,7 +57,27 @@ class Hoteis (Resource):
     
     
 class Hotel (Resource):
+    '''
+    Status Code Meaning\n
+    200 -> Success\n
+    201 -> Created\n
+    404 -> Not Found\n
+    500 -> Server Error
+    '''
+    # -----------------------------------------------------------------
+    # ---------------- Atributos da minha classe Hotel ----------------
+    # -----------------------------------------------------------------
+    argumentos = reqparse.RequestParser()
+    argumentos.add_argument('nome')
+    argumentos.add_argument('estrelas')
+    argumentos.add_argument('diaria')
+    argumentos.add_argument('cidade')
     
+    
+    
+    # -----------------------------------------------------------------
+    # ---------------------------- Funções ----------------------------
+    # -----------------------------------------------------------------
     def find_hotel(hotel_id):
         for hotel in hoteis: 
             # If this id exists, then it will return hotel (above)
@@ -61,6 +85,8 @@ class Hotel (Resource):
                 return hotel
         return None
     
+
+
     # Get function to get hotel information searching for hotel_id
     # -----------------------------------------------------------------
     # The paremeter hotel_id have to be equal to the implementation 
@@ -76,49 +102,54 @@ class Hotel (Resource):
         return {'message': 'Hotel not found'}, 404 # Status code of not found
     
     
-    
+
     # POST function to insert a new value in JSON file
     # -----------------------------------------------------------------
     
     def post(self, hotel_id):
+    
+        # Istância do método construtor, onde obtém os dados para passar
+        dados = Hotel.argumentos.parse_args()
+        hotel_object = HotelModel(hotel_id, **dados)
+        new_hotel = hotel_object.json()
         
-        hotel = Hotel.find_hotel(hotel_id=hotel_id)
-        
-        # Se existe hotel, então ele irá retornar esta mensagem, senão continuará seguindo o código
-        if hotel is not None:
-            error_message = f'The hotel_id {hotel_id} is already created!'
-            return error_message,500
-        
-        argumentos = reqparse.RequestParser()
-        argumentos.add_argument('nome')
-        argumentos.add_argument('estrelas')
-        argumentos.add_argument('diaria')
-        argumentos.add_argument('cidade')
-        
-        # Variável dados é o construtor
-        
-        # Ele recebe os valores passados no .add_argument acima, pois pertencem a mesma classe
-        
-        
-        dados = argumentos.parse_args()
-        
-        new_hotel = {
-            'hotel_id': hotel_id,
-            'nome': dados['nome'],
-            'estrelas': dados['estrelas'],
-            'diaria': dados['diaria'],
-            'cidade': dados['cidade']
-        }
         
         hoteis.append(new_hotel)
         
         return new_hotel, 200
 
 
+
 # PUT function will update values if exists, but if doesn't exist, PUT function will create new hotel
 
     def put(self, hotel_id):
-        pass
+        
+        hotel = Hotel.find_hotel(hotel_id=hotel_id)
+        
+        dados = Hotel.argumentos.parse_args()
+        
+        # **dados é um kwargs que recebe key e args, ou seja, dicionario. Quando utilizo **dados, estou desempacotando a variável dados.
+        # Na variável dados eu tenho todos os argumentos que preciso para registrar um novo hotel
+        hotel_objeto = HotelModel(hotel_id, **dados) 
+        
+        new_hotel = hotel_objeto.json() 
+        
+        if hotel: # Se o hotel já existe, então atualiza
+            hotel.update(new_hotel)
+            # message = 'Hotel atualizado com sucesso!'
+            return new_hotel, 200 # Atualiza o hotel
+        
+        # Se não existe, cria o hotel
+        hoteis.append(new_hotel)
+        # message = 'Hotel adicionado com sucesso'
+        return new_hotel, 201 # Created status
     
     def delete(self, hotel_id):
-        pass
+        global hoteis
+        
+        # List comprehension
+        
+        # variável hoteis 
+        hoteis = [hotel for hotel in hoteis if hotel['hotel_id'] != hotel_id]
+        
+        return {'message': 'Hotel deleted.'}, 200       
