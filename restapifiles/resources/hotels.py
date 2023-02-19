@@ -78,14 +78,6 @@ class Hotel (Resource):
     # -----------------------------------------------------------------
     # ---------------------------- Funções ----------------------------
     # -----------------------------------------------------------------
-    def find_hotel(hotel_id):
-        for hotel in hoteis: 
-            # If this id exists, then it will return hotel (above)
-            if hotel['hotel_id'] == hotel_id: 
-                return hotel
-        return None
-    
-
 
     # Get function to get hotel information searching for hotel_id
     # -----------------------------------------------------------------
@@ -107,16 +99,21 @@ class Hotel (Resource):
     # -----------------------------------------------------------------
     
     def post(self, hotel_id):
-    
+        if HotelModel.find_hotel(hotel_id=hotel_id):
+            return {'message':'Hotel id "{}" already exists'.format(hotel_id)}, 400 # Bad request status code
         # Istância do método construtor, onde obtém os dados para passar
         dados = Hotel.argumentos.parse_args()
-        hotel_object = HotelModel(hotel_id, **dados)
-        new_hotel = hotel_object.json()
+        hotel = HotelModel(hotel_id, **dados)
+        
+        hotel.save_hotel()
+        
+        return hotel.json()
+        # new_hotel = hotel.json()
         
         
-        hoteis.append(new_hotel)
+        # hoteis.append(new_hotel)
         
-        return new_hotel, 200
+        # return new_hotel, 200
 
 
 
