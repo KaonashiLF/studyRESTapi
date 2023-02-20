@@ -86,7 +86,7 @@ class Hotel (Resource):
         hotel = HotelModel.find_hotel(hotel_id=hotel_id)
         
         if hotel: # Se existe hotel, retorna hotel
-            return hotel
+            return hotel.json() # retorna json() que é a transformação dos dados para json
         
         # Se não existe o hotel, ele irá sair do if acima e vai retornar essa mensagem
         return {'message': 'Hotel not found'}, 404 # Status code of not found
@@ -98,7 +98,7 @@ class Hotel (Resource):
     
     def post(self, hotel_id):
         if HotelModel.find_hotel(hotel_id):
-            return {'message':'Hotel id "{}" already exists'.format(hotel_id)}, 400 # Bad request status code
+            return {"message":"Hotel id '{}' already exists".format(hotel_id)}, 400 # Bad request status code
         # Istância do método construtor, onde obtém os dados para passar
         
         dados = Hotel.atributos.parse_args()
@@ -107,12 +107,6 @@ class Hotel (Resource):
         hotel.save_hotel()
         
         return hotel.json()
-        # new_hotel = hotel.json()
-        
-        
-        # hoteis.append(new_hotel)
-        
-        # return new_hotel, 200
 
 
 
