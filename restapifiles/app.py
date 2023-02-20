@@ -24,10 +24,11 @@ api.add_resource(Hotel, '/hoteis/<string:hotel_id>')
 # This code for run my app variable with debug function
 if __name__ == '__main__':
     # Este import está sendo realizado dentro desta condição porque
+    from database.sql_alchemy import banco
     # só iremos importar o SQL Alchemy quando ocorrer a execução do arquivo app.py
     
     # Posteriormente este arquivo também será importado nos outros arquivos e para que ele não seja importado toda hora, coloca-se na condicional onde o app.py seja o importador principal, quando executado
    
-    from database.sql_alchemy import banco
+    
     banco.init_app(app) # 
     app.run(debug=True)

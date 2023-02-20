@@ -1,10 +1,6 @@
 import sqlite3
 
 
-
-
-
-
 class database:
     
     create_table = "CREATE TABLE IF NOT EXISTS hoteis\

@@ -30,11 +30,12 @@ class HotelModel(banco.Model): # herdando o Model do banco (SQL Alchemy)
             'diaria': self.diaria,
             'cidade': self.diaria
             }
-        
+    
     @classmethod
     def find_hotel (cls, hotel_id):
-        hotel = cls.query.filter_by(hotel_id=hotel_id).first() # SELECT * FROM hoteis WHERE hotel_id = $hotel_id$
-        if hotel:
+        hotel = cls.query.filter_by(hotel_id=hotel_id).first() # SELECT * FROM hoteis WHERE hotel_id = $hotel_id$ LIMIT 1
+        
+        if hotel: # Se existe algum hotel
             return hotel
         return None
 

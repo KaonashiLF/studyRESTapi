@@ -4,8 +4,6 @@ from flask_restful import Resource, reqparse
 from models.hotel import HotelModel
 
 
-
-
 hoteis = [
     
     {
@@ -67,11 +65,11 @@ class Hotel (Resource):
     # -----------------------------------------------------------------
     # ---------------- Atributos da minha classe Hotel ----------------
     # -----------------------------------------------------------------
-    argumentos = reqparse.RequestParser()
-    argumentos.add_argument('nome')
-    argumentos.add_argument('estrelas')
-    argumentos.add_argument('diaria')
-    argumentos.add_argument('cidade')
+    atributos = reqparse.RequestParser()
+    atributos.add_argument('nome')
+    atributos.add_argument('estrelas')
+    atributos.add_argument('diaria')
+    atributos.add_argument('cidade')
     
     
     
@@ -85,7 +83,7 @@ class Hotel (Resource):
     def get(self, hotel_id): 
         
         # Loop passing through to the list 
-        hotel = Hotel.find_hotel(hotel_id=hotel_id)
+        hotel = HotelModel.find_hotel(hotel_id=hotel_id)
         
         if hotel: # Se existe hotel, retorna hotel
             return hotel
@@ -99,10 +97,11 @@ class Hotel (Resource):
     # -----------------------------------------------------------------
     
     def post(self, hotel_id):
-        if HotelModel.find_hotel(hotel_id=hotel_id):
+        if HotelModel.find_hotel(hotel_id):
             return {'message':'Hotel id "{}" already exists'.format(hotel_id)}, 400 # Bad request status code
         # Istância do método construtor, onde obtém os dados para passar
-        dados = Hotel.argumentos.parse_args()
+        
+        dados = Hotel.atributos.parse_args()
         hotel = HotelModel(hotel_id, **dados)
         
         hotel.save_hotel()
@@ -121,12 +120,12 @@ class Hotel (Resource):
 
     def put(self, hotel_id):
         
-        hotel = Hotel.find_hotel(hotel_id=hotel_id)
+        hotel = HotelModel.find_hotel(hotel_id=hotel_id)
         
-        dados = Hotel.argumentos.parse_args()
+        dados = Hotel.atributos.parse_args()
         
         # **dados é um kwargs que recebe key e args, ou seja, dicionario. Quando utilizo **dados, estou desempacotando a variável dados.
-        # Na variável dados eu tenho todos os argumentos que preciso para registrar um novo hotel
+        # Na variável dados eu tenho todos os atributos que preciso para registrar um novo hotel
         hotel_objeto = HotelModel(hotel_id, **dados) 
         
         new_hotel = hotel_objeto.json() 
