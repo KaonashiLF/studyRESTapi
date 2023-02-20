@@ -47,3 +47,13 @@ class HotelModel(banco.Model): # herdando o Model do banco (SQL Alchemy)
         # O self entende que os valores são os os atributos recebidos da classe
         banco.session.add(self) 
         banco.session.commit()
+        
+    def update_hotel(self, nome, estrelas, diaria, cidade):
+        self.nome = nome
+        self.estrelas = estrelas
+        self.diaria = diaria
+        self.cidade = cidade
+        
+    def delete_hotel(self):
+        banco.session.delete(self)
+        banco.session.commit()

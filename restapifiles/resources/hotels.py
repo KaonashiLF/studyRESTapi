@@ -50,8 +50,9 @@ class Hoteis (Resource):
     Inheriting Resources from library flask_resful
     '''
     def get(self):
-        hotels = hoteis
-        return hotels
+        
+        #List comprehension to get all hotels in json format
+        return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}
     
     
 class Hotel (Resource):
@@ -66,10 +67,10 @@ class Hotel (Resource):
     # ---------------- Atributos da minha classe Hotel ----------------
     # -----------------------------------------------------------------
     atributos = reqparse.RequestParser()
-    atributos.add_argument('nome')
-    atributos.add_argument('estrelas')
-    atributos.add_argument('diaria')
-    atributos.add_argument('cidade')
+    atributos.add_argument('nome', type=str, required=True, help="The field 'nome' cannot be left blank")
+    atributos.add_argument('estrelas', type=float)
+    atributos.add_argument('diaria', type=float)
+    atributos.add_argument('cidade', type=str, required=True, help="The field 'cidade' cannot be left blank")
     
     
     
@@ -103,9 +104,10 @@ class Hotel (Resource):
         
         dados = Hotel.atributos.parse_args()
         hotel = HotelModel(hotel_id, **dados)
-        
-        hotel.save_hotel()
-        
+        try:
+            hotel.save_hotel()
+        except:
+            return {'message': 'An internal error ocurred trying to save hotel'}, 500 # Interal Error
         return hotel.json()
 
 
@@ -113,26 +115,23 @@ class Hotel (Resource):
 # PUT function will update values if exists, but if doesn't exist, PUT function will create new hotel
 
     def put(self, hotel_id):
-        
-        hotel = HotelModel.find_hotel(hotel_id=hotel_id)
-        
         dados = Hotel.atributos.parse_args()
+        hotel_encontrado = HotelModel.find_hotel(hotel_id)
         
-        # **dados é um kwargs que recebe key e args, ou seja, dicionario. Quando utilizo **dados, estou desempacotando a variável dados.
-        # Na variável dados eu tenho todos os atributos que preciso para registrar um novo hotel
-        hotel_objeto = HotelModel(hotel_id, **dados) 
+        # Se o hotel é encontrado, então atualiza com dados recebidos e salva
+        if hotel_encontrado:
+            hotel_encontrado.update_hotel(**dados)
+            hotel_encontrado.save_hotel()
+            return hotel_encontrado.json(), 200
         
-        new_hotel = hotel_objeto.json() 
+        # Se não é encontrado, novo hotel é salvo usando o save_hotel
+        hotel = HotelModel(hotel_id, **dados)
+        try:
+            hotel.save_hotel()
+        except:
+            return {'message':'An internal error ocurred trying to save hotel'}, 500
+        return hotel.json(), 201 # Created
         
-        if hotel: # Se o hotel já existe, então atualiza
-            hotel.update(new_hotel)
-            # message = 'Hotel atualizado com sucesso!'
-            return new_hotel, 200 # Atualiza o hotel
-        
-        # Se não existe, cria o hotel
-        hoteis.append(new_hotel)
-        # message = 'Hotel adicionado com sucesso'
-        return new_hotel, 201 # Created status
     
     def delete(self, hotel_id):
         global hoteis
@@ -142,4 +141,13 @@ class Hotel (Resource):
         # variável hoteis 
         hoteis = [hotel for hotel in hoteis if hotel['hotel_id'] != hotel_id]
         
-        return {'message': 'Hotel deleted.'}, 200       
+        hotel = HotelModel.find_hotel(hotel_id)
+        
+        if hotel:
+            try:
+                hotel.delete_hotel()
+            except:
+                return{'message': 'An internal error ocurred trying to delete this hotel'}, 500
+            return {"message": "Hotel '{}' deleted.".format(hotel_id)}, 200
+        
+        return {'message': 'Hotel not found.'}, 404
