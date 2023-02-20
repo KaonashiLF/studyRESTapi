@@ -15,6 +15,7 @@ class HotelModel(banco.Model): # herdando o Model do banco (SQL Alchemy)
     cidade = banco.Column(banco.String(30))
     
     
+    # 
     def __init__(self, hotel_id, nome, estrelas, diaria, cidade) -> None:
         self.hotel_id = hotel_id
         self.nome = nome
@@ -28,18 +29,21 @@ class HotelModel(banco.Model): # herdando o Model do banco (SQL Alchemy)
             'nome': self.nome,
             'estrelas': self.estrelas,
             'diaria': self.diaria,
-            'cidade': self.diaria
+            'cidade': self.cidade
             }
     
     @classmethod
     def find_hotel (cls, hotel_id):
+        # query.filter_by já é uma função do SQLAlchemy
         hotel = cls.query.filter_by(hotel_id=hotel_id).first() # SELECT * FROM hoteis WHERE hotel_id = $hotel_id$ LIMIT 1
         
         if hotel: # Se existe algum hotel
             return hotel
         return None
 
-    
-    def save_hotel(self):
-        banco.session.add(self) # O self entende que os valores são os os atributos recebidos da classe
+    # Em SQL Alchemy, os dados são salvo porque substituem quando já existe no banco
+    def save_hotel(self): 
+        
+        # O self entende que os valores são os os atributos recebidos da classe
+        banco.session.add(self) 
         banco.session.commit()
