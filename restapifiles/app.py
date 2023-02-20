@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
-from resources.hotels import * # importing class Hoteis from resources/hotels.py
+from resources.hotel import * # importing class Hoteis from resources/hotels.py
+from resources.usuario import User, Users
 
 
 app = Flask(__name__)
@@ -19,6 +20,8 @@ def create_database():
 
 api.add_resource(Hoteis, '/hoteis')
 api.add_resource(Hotel, '/hoteis/<string:hotel_id>')
+api.add_resource(User, '/usuarios/<int:user_id>')
+# api.add_resource(Users, '/usuarios') # Não teremos um get de todos os usuários
 
 
 # This code for run my app variable with debug function
